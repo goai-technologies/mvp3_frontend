@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMredi - AI Website Audit Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header" id="header" style="display: none;">
+        <div class="container">
+            <div class="nav-brand">
+                <h2>LLMredi Audit</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" onclick="showScreen('dashboard')" class="nav-link">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="#" onclick="showScreen('profile')" class="nav-link">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="#" onclick="showScreen('help')" class="nav-link">
+                    <i class="fas fa-question-circle"></i> Help
+                </a>
+                <a href="#" onclick="logout()" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <h1>LLMredi</h1>
+                    <p>AI-Powered Website Audit Platform</p>
+                </div>
+                <form class="login-form" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Sign In</button>
+                </form>
+                <div class="login-footer">
+                    <p>Don't have an account? <a href="#">Sign up</a></p>
+                    <p><a href="#">Forgot password?</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard/Home Screen -->
+    <div id="dashboard-screen" class="screen">
+        <div class="container">
+            <div class="welcome-section">
+                <h1>Welcome back!</h1>
+                <p>Start a new audit or review your recent reports</p>
+            </div>
+            
+            <div class="audit-starter-card">
+                <h2>Start New Audit</h2>
+                <form class="audit-form" onsubmit="startAudit(event)">
+                    <div class="form-group">
+                        <label for="domain">Website Domain</label>
+                        <input type="url" id="domain" name="domain" placeholder="https://example.com" required>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-search"></i> Start Audit
+                    </button>
+                </form>
+            </div>
+
+            <div class="recent-audits">
+                <h2>Recent Audits</h2>
+                <div class="audit-cards">
+                    <div class="audit-card">
+                        <div class="audit-info">
+                            <h3>example.com</h3>
+                            <p class="audit-date">2 days ago</p>
+                        </div>
+                        <div class="audit-score">
+                            <div class="score-circle">85</div>
+                            <span>Improvement Score</span>
+                        </div>
+                        <button class="btn-secondary" onclick="viewReport('example.com')">View Report</button>
+                    </div>
+                    <div class="audit-card">
+                        <div class="audit-info">
+                            <h3>testsite.org</h3>
+                            <p class="audit-date">1 week ago</p>
+                        </div>
+                        <div class="audit-score">
+                            <div class="score-circle">72</div>
+                            <span>Improvement Score</span>
+                        </div>
+                        <button class="btn-secondary" onclick="viewReport('testsite.org')">View Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Processing Screen -->
+    <div id="processing-screen" class="screen">
+        <div class="container">
+            <div class="processing-header">
+                <h1>Auditing Website</h1>
+                <p id="current-domain">Analyzing example.com...</p>
+            </div>
+            
+            <div class="progress-steps">
+                <div class="step active" id="step-scraping">
+                    <div class="step-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3>Scraping Website</h3>
+                        <p>Extracting content and structure</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="scraping-progress"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step" id="step-initial-audit">
+                    <div class="step-icon">
+                        <i class="fas fa-magnifying-glass"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3>Initial Audit</h3>
+                        <p>Analyzing current SEO and AI-readiness</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="initial-audit-progress"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step" id="step-optimizing">
+                    <div class="step-icon">
+                        <i class="fas fa-magic-wand-sparkles"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3>Optimizing Code</h3>
+                        <p>Applying AI-driven improvements</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="optimizing-progress"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step" id="step-final-audit">
+                    <div class="step-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3>Final Audit</h3>
+                        <p>Validating improvements</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="final-audit-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="estimated-time">
+                <p>Estimated completion: <span id="eta">3-5 minutes</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Report Screen (Old Version) -->
+    <div id="old-report-screen" class="screen">
+        <div class="container">
+            <div class="report-header">
+                <h1>Original Website Audit</h1>
+                <p id="report-domain">Report for example.com</p>
+                <div class="report-actions">
+                    <button class="btn-secondary" onclick="showScreen('comparison')">Compare Versions</button>
+                    <button class="btn-primary" onclick="downloadReport('old')">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+            
+            <div class="metrics-overview">
+                <div class="metric-card">
+                    <div class="metric-icon seo">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>SEO Score</h3>
+                        <div class="score-large">65</div>
+                        <p class="score-status poor">Needs Improvement</p>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon ai">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>AI-Readiness</h3>
+                        <div class="score-large">58</div>
+                        <p class="score-status poor">Poor</p>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon performance">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Performance</h3>
+                        <div class="score-large">72</div>
+                        <p class="score-status fair">Fair</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="issues-section">
+                <h2>Issues Found</h2>
+                <div class="issue-categories">
+                    <div class="issue-category">
+                        <h3>Critical Issues</h3>
+                        <div class="issue-list">
+                            <div class="issue-item critical">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div class="issue-content">
+                                    <h4>Missing Meta Description</h4>
+                                    <p>Your homepage is missing a meta description tag</p>
+                                </div>
+                            </div>
+                            <div class="issue-item critical">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div class="issue-content">
+                                    <h4>No Structured Data</h4>
+                                    <p>Missing schema markup for better AI understanding</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="issue-category">
+                        <h3>Moderate Issues</h3>
+                        <div class="issue-list">
+                            <div class="issue-item moderate">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div class="issue-content">
+                                    <h4>Suboptimal Heading Structure</h4>
+                                    <p>H1 tags are not properly structured</p>
+                                </div>
+                            </div>
+                            <div class="issue-item moderate">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div class="issue-content">
+                                    <h4>Missing Alt Text</h4>
+                                    <p>Some images lack descriptive alt attributes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Report Screen (Updated Version) -->
+    <div id="new-report-screen" class="screen">
+        <div class="container">
+            <div class="report-header">
+                <h1>Optimized Website Audit</h1>
+                <p id="optimized-report-domain">Report for example.com (Optimized)</p>
+                <div class="report-actions">
+                    <button class="btn-secondary" onclick="showScreen('comparison')">Compare Versions</button>
+                    <button class="btn-primary" onclick="downloadReport('new')">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+            
+            <div class="metrics-overview">
+                <div class="metric-card">
+                    <div class="metric-icon seo">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>SEO Score</h3>
+                        <div class="score-large">92</div>
+                        <p class="score-status excellent">Excellent</p>
+                        <div class="improvement">+27</div>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon ai">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>AI-Readiness</h3>
+                        <div class="score-large">89</div>
+                        <p class="score-status excellent">Excellent</p>
+                        <div class="improvement">+31</div>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon performance">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Performance</h3>
+                        <div class="score-large">85</div>
+                        <p class="score-status good">Good</p>
+                        <div class="improvement">+13</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fixes-section">
+                <h2>Issues Fixed</h2>
+                <div class="fix-categories">
+                    <div class="fix-list">
+                        <div class="fix-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="fix-content">
+                                <h4>Added Meta Description</h4>
+                                <p>Implemented compelling meta description for homepage</p>
+                            </div>
+                        </div>
+                        <div class="fix-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="fix-content">
+                                <h4>Implemented Structured Data</h4>
+                                <p>Added comprehensive schema markup for AI understanding</p>
+                            </div>
+                        </div>
+                        <div class="fix-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="fix-content">
+                                <h4>Optimized Heading Structure</h4>
+                                <p>Restructured H1-H6 tags for better SEO hierarchy</p>
+                            </div>
+                        </div>
+                        <div class="fix-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="fix-content">
+                                <h4>Enhanced Image Alt Text</h4>
+                                <p>Added descriptive alt attributes to all images</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Screen -->
+    <div id="comparison-screen" class="screen">
+        <div class="container">
+            <div class="comparison-header">
+                <h1>Before vs After Comparison</h1>
+                <p>See the improvements made to your website</p>
+            </div>
+            
+            <div class="comparison-metrics">
+                <div class="metric-comparison">
+                    <h3>SEO Score</h3>
+                    <div class="comparison-bars">
+                        <div class="before-bar">
+                            <span>Before</span>
+                            <div class="bar">
+                                <div class="fill" style="width: 65%;">65</div>
+                            </div>
+                        </div>
+                        <div class="after-bar">
+                            <span>After</span>
+                            <div class="bar">
+                                <div class="fill improved" style="width: 92%;">92</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="improvement-indicator">+27 points</div>
+                </div>
+                
+                <div class="metric-comparison">
+                    <h3>AI-Readiness</h3>
+                    <div class="comparison-bars">
+                        <div class="before-bar">
+                            <span>Before</span>
+                            <div class="bar">
+                                <div class="fill" style="width: 58%;">58</div>
+                            </div>
+                        </div>
+                        <div class="after-bar">
+                            <span>After</span>
+                            <div class="bar">
+                                <div class="fill improved" style="width: 89%;">89</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="improvement-indicator">+31 points</div>
+                </div>
+                
+                <div class="metric-comparison">
+                    <h3>Performance</h3>
+                    <div class="comparison-bars">
+                        <div class="before-bar">
+                            <span>Before</span>
+                            <div class="bar">
+                                <div class="fill" style="width: 72%;">72</div>
+                            </div>
+                        </div>
+                        <div class="after-bar">
+                            <span>After</span>
+                            <div class="bar">
+                                <div class="fill improved" style="width: 85%;">85</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="improvement-indicator">+13 points</div>
+                </div>
+            </div>
+            
+            <div class="issues-comparison">
+                <div class="before-issues">
+                    <h3>Issues Found (Before)</h3>
+                    <div class="issue-summary">
+                        <div class="issue-count critical">4 Critical</div>
+                        <div class="issue-count moderate">6 Moderate</div>
+                        <div class="issue-count minor">8 Minor</div>
+                    </div>
+                </div>
+                
+                <div class="after-issues">
+                    <h3>Issues Remaining (After)</h3>
+                    <div class="issue-summary">
+                        <div class="issue-count critical">0 Critical</div>
+                        <div class="issue-count moderate">1 Moderate</div>
+                        <div class="issue-count minor">2 Minor</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="showScreen('insights')">View Insights</button>
+                <button class="btn-primary" onclick="downloadComparison()">
+                    <i class="fas fa-download"></i> Download Comparison
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actionable Insights Screen -->
+    <div id="insights-screen" class="screen">
+        <div class="container">
+            <div class="insights-header">
+                <h1>Actionable Insights & Recommendations</h1>
+                <p>Next steps to maintain and improve your website</p>
+            </div>
+            
+            <div class="insights-summary">
+                <div class="summary-card">
+                    <h3>Overall Impact</h3>
+                    <div class="impact-metrics">
+                        <div class="impact-item">
+                            <span class="metric">85%</span>
+                            <span class="label">Issues Resolved</span>
+                        </div>
+                        <div class="impact-item">
+                            <span class="metric">+42%</span>
+                            <span class="label">Average Score Improvement</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendations">
+                <h2>Key Recommendations</h2>
+                
+                <div class="recommendation-card priority-high">
+                    <div class="rec-header">
+                        <h3>Monitor Content Updates</h3>
+                        <span class="priority high">High Priority</span>
+                    </div>
+                    <p>Regularly update your content to maintain AI-readiness and SEO rankings. Consider implementing a content calendar.</p>
+                    <div class="rec-actions">
+                        <button class="btn-outline">Learn More</button>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card priority-medium">
+                    <div class="rec-header">
+                        <h3>Implement Analytics Tracking</h3>
+                        <span class="priority medium">Medium Priority</span>
+                    </div>
+                    <p>Add comprehensive analytics to track the impact of optimizations and identify new improvement opportunities.</p>
+                    <div class="rec-actions">
+                        <button class="btn-outline">Learn More</button>
+                    </div>
+                </div>
+                
+                <div class="recommendation-card priority-low">
+                    <div class="rec-header">
+                        <h3>Mobile Optimization</h3>
+                        <span class="priority low">Low Priority</span>
+                    </div>
+                    <p>Further optimize mobile experience to improve user engagement and search rankings.</p>
+                    <div class="rec-actions">
+                        <button class="btn-outline">Learn More</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h2>Suggested Next Steps</h2>
+                <div class="steps-list">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Download Your Reports</h4>
+                            <p>Save both audit reports for your records and team sharing</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-content">
+                            <h4>Schedule Regular Audits</h4>
+                            <p>Set up monthly audits to maintain optimal performance</p>
+                        </div>
+                        <div class="step-number">2</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Monitor Performance</h4>
+                            <p>Track your website's performance using the recommended tools</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="export-options">
+                <h2>Export Options</h2>
+                <div class="export-buttons">
+                    <button class="btn-secondary" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i> Download PDF Report
+                    </button>
+                    <button class="btn-secondary" onclick="exportReport('excel')">
+                        <i class="fas fa-file-excel"></i> Export to Excel
+                    </button>
+                    <button class="btn-secondary" onclick="exportReport('json')">
+                        <i class="fas fa-code"></i> Export JSON Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile & Settings Screen -->
+    <div id="profile-screen" class="screen">
+        <div class="container">
+            <div class="profile-header">
+                <h1>Profile & Settings</h1>
+                <p>Manage your account and preferences</p>
+            </div>
+            
+            <div class="profile-content">
+                <div class="profile-section">
+                    <h2>Account Information</h2>
+                    <form class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" value="John">
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" value="Doe">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileEmail">Email Address</label>
+                            <input type="email" id="profileEmail" value="john.doe@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company" value="Acme Corp">
+                        </div>
+                        <button type="submit" class="btn-primary">Update Profile</button>
+                    </form>
+                </div>
+                
+                <div class="profile-section">
+                    <h2>Audit Preferences</h2>
+                    <div class="preferences">
+                        <div class="preference-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                                Email notifications for completed audits
+                            </label>
+                        </div>
+                        <div class="preference-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                                Weekly performance summaries
+                            </label>
+                        </div>
+                        <div class="preference-item">
+                            <label class="toggle-label">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                                Automatic monthly audits
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h2>Security</h2>
+                    <div class="security-options">
+                        <button class="btn-outline">Change Password</button>
+                        <button class="btn-outline">Enable Two-Factor Authentication</button>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h2>Subscription</h2>
+                    <div class="subscription-info">
+                        <div class="plan-card">
+                            <h3>Professional Plan</h3>
+                            <p class="plan-price">$49/month</p>
+                            <p>50 audits per month</p>
+                            <p>Advanced analytics</p>
+                            <p>Priority support</p>
+                            <button class="btn-secondary">Manage Subscription</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help/Contact Screen -->
+    <div id="help-screen" class="screen">
+        <div class="container">
+            <div class="help-header">
+                <h1>Help & Support</h1>
+                <p>Get assistance and learn more about LLMredi Audit</p>
+            </div>
+            
+            <div class="help-content">
+                <div class="help-section">
+                    <h2>Frequently Asked Questions</h2>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>How long does an audit take?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Most audits complete within 3-5 minutes, depending on the size and complexity of your website.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>What changes are made to my website?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>We create an optimized version internally for comparison. No changes are made to your live website without your explicit approval.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Can I audit password-protected sites?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Currently, we only support publicly accessible websites. Private sites require special configuration.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h2>Contact Support</h2>
+                    <div class="contact-options">
+                        <div class="contact-card">
+                            <i class="fas fa-envelope"></i>
+                            <h3>Email Support</h3>
+                            <p>Get help via email</p>
+                            <p><strong>support@llmredi.com</strong></p>
+                            <p>Response within 24 hours</p>
+                        </div>
+                        <div class="contact-card">
+                            <i class="fas fa-comments"></i>
+                            <h3>Live Chat</h3>
+                            <p>Chat with our team</p>
+                            <button class="btn-primary">Start Chat</button>
+                            <p>Available 9 AM - 6 PM EST</p>
+                        </div>
+                        <div class="contact-card">
+                            <i class="fas fa-book"></i>
+                            <h3>Documentation</h3>
+                            <p>Browse our guides</p>
+                            <button class="btn-secondary">View Docs</button>
+                            <p>Comprehensive tutorials</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h2>Submit a Support Request</h2>
+                    <form class="support-form">
+                        <div class="form-group">
+                            <label for="supportSubject">Subject</label>
+                            <input type="text" id="supportSubject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="supportCategory">Category</label>
+                            <select id="supportCategory" required>
+                                <option value="">Select a category</option>
+                                <option value="technical">Technical Issue</option>
+                                <option value="billing">Billing Question</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="supportMessage">Message</label>
+                            <textarea id="supportMessage" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Send Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

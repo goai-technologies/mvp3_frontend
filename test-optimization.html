@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimization Test - LLMredi</title>
+    <style>
+        :root {
+            --primary-blue: #223067;
+            --accent-yellow: #F4BD2A;
+            --light-bg: #FAFAFA;
+            --alt-light-bg: #FCFAF6;
+            --dark-text: #161B36;
+            --muted-text: #4B4B6B;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --border-color: #E5E7EB;
+            --shadow-light: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --border-radius-large: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: var(--white);
+        }
+
+        .audit-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .audit-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-light);
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 1.5rem;
+            align-items: center;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            min-height: 120px;
+        }
+
+        .audit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--accent-yellow) 100%);
+        }
+
+        .audit-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-large);
+            border-color: var(--primary-blue);
+        }
+
+        .audit-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .audit-info h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            line-height: 1.2;
+        }
+
+        .audit-date {
+            color: var(--muted-text);
+            font-size: 0.875rem;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            align-self: flex-start;
+            padding: 0.375rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-completed { 
+            background: #d1fae5; 
+            color: #065f46; 
+        }
+
+        .status-optimizing { 
+            background: #fef3c7; 
+            color: #92400e; 
+            animation: pulse 2s infinite;
+        }
+
+        .status-processing { 
+            background: #dbeafe; 
+            color: #1e40af; 
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .audit-progress {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 140px;
+        }
+
+        .audit-score {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-yellow) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 800;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-circle::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .audit-score span {
+            font-size: 0.75rem;
+            color: var(--muted-text);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Job Statistics - Horizontal Layout */
+        .job-stats {
+            display: flex;
+            flex-direction: row;
+            gap: 0.75rem;
+            margin: 0;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: var(--alt-light-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .stat-item:hover {
+            background: var(--white);
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-light);
+            transform: translateY(-1px);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--muted-text);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            background: var(--white);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            min-width: 2rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 160px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #2d4a8a 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+            background: linear-gradient(135deg, #1a2a5a 0%, #223067 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent-yellow) 0%, #f59e0b 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+            background: linear-gradient(135deg, #e5a800 0%, #d97706 100%);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-blue);
+            color: var(--primary-blue);
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-blue);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled:hover::before {
+            left: -100%;
+        }
+
+        /* Start Audit Button with Login-style Gradient */
+        .audit-form .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #2d4a8a 100%);
+            color: var(--white);
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audit-form .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .audit-form .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .audit-form .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+            background: linear-gradient(135deg, #1a2a5a 0%, #223067 100%);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .audit-card {
+                grid-template-columns: 1fr auto auto;
+                gap: 1.5rem;
+            }
+            
+            .job-stats {
+                grid-column: 1 / -1;
+                justify-content: center;
+                margin: 0.5rem 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .audit-card {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem;
+                min-height: auto;
+            }
+            
+            .audit-info, .audit-progress, .job-stats, .action-buttons {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .job-stats {
+                flex-direction: row;
+                justify-content: center;
+                gap: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .action-buttons button {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .audit-info h3 {
+                text-align: center;
+            }
+            
+            .status-badge {
+                align-self: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LLMredi Optimization Test - Enhanced UI</h1>
+        
+        <div class="test-section">
+            <h2>Test Scenarios</h2>
+            <p>This page demonstrates the improved optimization functionality with enhanced UI design:</p>
+            <ul>
+                <li><strong>Job without optimization:</strong> Shows "Optimize" button</li>
+                <li><strong>Job with optimization:</strong> Shows "Compare Reports" button</li>
+                <li><strong>Job being optimized:</strong> Shows "Optimizing..." state</li>
+                <li><strong>Enhanced Layout:</strong> Job statistics are now vertically aligned and more visually appealing</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>Recent Jobs - Enhanced Layout</h2>
+            <div class="audit-cards">
+                <!-- Job 1: No Optimization Yet -->
+                <div class="audit-card">
+                    <div class="audit-info">
+                        <h3>https://hedgehog.cloud</h3>
+                        <p class="audit-date">8/21/2025</p>
+                        <span class="status-badge status-completed">COMPLETED</span>
+                    </div>
+                    
+                    <div class="audit-progress">
+                        <div class="audit-score">
+                            <div class="score-circle">✓</div>
+                            <span>Completed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="job-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Pages</span>
+                            <span class="stat-value">13</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Assets</span>
+                            <span class="stat-value">105</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">URLs</span>
+                            <span class="stat-value">13</span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="optimizeJob('job1')">
+                            🪄 Optimize
+                        </button>
+                        <button class="btn btn-outline" onclick="viewReport('job1')">
+                            📊 View Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Job 2: Currently Optimizing -->
+                <div class="audit-card">
+                    <div class="audit-info">
+                        <h3>https://kezban.co.uk</h3>
+                        <p class="audit-date">8/21/2025</p>
+                        <span class="status-badge status-optimizing">OPTIMIZING</span>
+                    </div>
+                    
+                    <div class="audit-progress">
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <span class="progress-text">65%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- No job stats shown while processing -->
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" disabled>
+                            ⏳ Optimizing...
+                        </button>
+                        <button class="btn btn-outline" onclick="viewReport('job2')">
+                            📊 View Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Job 4: Processing (New Example) -->
+                <div class="audit-card">
+                    <div class="audit-info">
+                        <h3>https://processing.example</h3>
+                        <p class="audit-date">8/21/2025</p>
+                        <span class="status-badge status-processing">PROCESSING</span>
+                    </div>
+                    
+                    <div class="audit-progress">
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 36%"></div>
+                            </div>
+                            <span class="progress-text">36%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- No job stats shown while processing -->
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-outline" disabled>
+                            Processing...
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Job 3: Optimization Complete -->
+                <div class="audit-card">
+                    <div class="audit-info">
+                        <h3>https://demo.net</h3>
+                        <p class="audit-date">8/21/2025</p>
+                        <span class="status-badge status-completed">COMPLETED</span>
+                    </div>
+                    
+                    <div class="audit-progress">
+                        <div class="audit-score">
+                            <div class="score-circle">✓</div>
+                            <span>Completed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="job-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Pages</span>
+                            <span class="stat-value">8</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Assets</span>
+                            <span class="stat-value">42</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">URLs</span>
+                            <span class="stat-value">8</span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="compareReports('job3')">
+                            📈 Compare Reports
+                        </button>
+                        <button class="btn btn-outline" onclick="viewReport('job3')">
+                            📊 View Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>UI Improvements Made</h2>
+            <ul>
+                <li><strong>Grid Layout:</strong> Job cards now use CSS Grid for better alignment</li>
+                <li><strong>Vertical Statistics:</strong> Pages, Assets, URLs are now stacked vertically below each other</li>
+                <li><strong>Enhanced Cards:</strong> Added top border accent, improved shadows, and hover effects</li>
+                <li><strong>Better Typography:</strong> Improved font weights, sizes, and spacing</li>
+                <li><strong>Interactive Elements:</strong> Hover effects on statistics and buttons</li>
+                <li><strong>Responsive Design:</strong> Adapts to different screen sizes</li>
+                <li><strong>Visual Hierarchy:</strong> Clear separation between different sections</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>API Integration</h2>
+            <p>The optimization functionality integrates with the API endpoint:</p>
+            <code>POST /api/optimize</code>
+            <p>With payload: <code>{"job_id": "job-uuid"}</code></p>
+            <p>After optimization, the job details are fetched again to check for the <code>new_report</code> parameter.</p>
+        </div>
+    </div>
+
+    <script>
+        function optimizeJob(jobId) {
+            console.log(`Starting optimization for job: ${jobId}`);
+            alert(`Optimization started for ${jobId}! Check the console for API call details.`);
+            
+            // Simulate API call
+            fetch('http://localhost:5002/api/optimize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer your-token-here'
+                },
+                body: JSON.stringify({ job_id: jobId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Optimization response:', data);
+                alert('Optimization API call successful! Check console for details.');
+            })
+            .catch(error => {
+                console.error('Optimization error:', error);
+                alert('Optimization API call failed. Check console for details.');
+            });
+        }
+
+        function viewReport(jobId) {
+            console.log(`Viewing report for job: ${jobId}`);
+            alert(`Viewing report for ${jobId}`);
+        }
+
+        function compareReports(jobId) {
+            console.log(`Comparing reports for job: ${jobId}`);
+            alert(`Comparing reports for ${jobId} - this would navigate to the comparison screen with real data from current_report and new_report`);
+        }
+    </script>
+</body>
+</html>
