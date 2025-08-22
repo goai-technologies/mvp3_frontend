@@ -168,6 +168,23 @@ const DashboardScreen = () => {
     return `https://${trimmed}`;
   };
 
+  // Manual refresh function for job data
+  const refreshJobData = async () => {
+    try {
+      setIsLoadingJobs(true);
+      const response = await apiService.getAllJobs({ limit: 5 });
+      if (response.jobs) {
+        setRecentJobs(response.jobs);
+        showNotification('Job data refreshed successfully', 'success');
+      }
+    } catch (error) {
+      console.error('Error refreshing job data:', error);
+      showNotification('Failed to refresh job data', 'error');
+    } finally {
+      setIsLoadingJobs(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!domain) return;
@@ -364,7 +381,26 @@ const DashboardScreen = () => {
         </div>
 
         <div className="recent-audits">
-          <h2>Recent Jobs</h2>
+          <div className="section-header">
+            <h2>Recent Jobs</h2>
+            <button 
+              className="btn-secondary small"
+              onClick={refreshJobData}
+              disabled={isLoadingJobs}
+            >
+              {isLoadingJobs ? (
+                <>
+                  <FontAwesomeIcon icon="spinner" spin />
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon="refresh" />
+                  Refresh
+                </>
+              )}
+            </button>
+          </div>
           <div className="audit-cards">
             {isLoadingJobs ? (
               <div className="loading-state">
@@ -563,7 +599,7 @@ const DashboardScreen = () => {
                         <div className="category-header">
                           <h4>{category.name}</h4>
                           <div className="category-score">
-                            {category.score}/{category.max_score} ({scorePercentage.toFixed(1)}%)
+                            {category.score}/{category.max_score} ({scorePercentage.toFixed(2)}%)
                           </div>
                         </div>
                         <div className="category-status">
@@ -590,7 +626,7 @@ const DashboardScreen = () => {
                                 <div className="metric-header">
                                   <span className="metric-name">{metric.name}</span>
                                   <span className="metric-score">
-                                    {metric.score}/{metric.max_score} ({metricPercentage.toFixed(1)}%)
+                                    {metric.score}/{metric.max_score} ({metricPercentage.toFixed(2)}%)
                                   </span>
                                 </div>
                                 <p className="metric-comments">{metric.comments}</p>

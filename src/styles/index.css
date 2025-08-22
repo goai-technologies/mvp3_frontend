@@ -737,6 +737,17 @@ input[type="checkbox"] {
     margin-bottom: 3rem;
 }
 
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
+}
+
 .audit-cards {
     display: flex;
     flex-direction: column;
@@ -1001,6 +1012,12 @@ input[type="checkbox"] {
 .btn-secondary:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-large);
+}
+
+.btn-secondary.small {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    min-width: auto;
 }
 
 .btn-outline {

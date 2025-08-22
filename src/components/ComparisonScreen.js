@@ -162,16 +162,16 @@ const ComparisonScreen = () => {
       // Overall improvement summary
       overall: {
         before: { 
-          score: currentPercentage, 
+          score: Number(currentPercentage.toFixed(2)), 
           grade: currentReport.letter_grade || 'N/A', 
           description: currentReport.letter_grade_descriptive || 'No description available' 
         },
         after: { 
-          score: newPercentage, 
+          score: Number(newPercentage.toFixed(2)), 
           grade: newReport.letter_grade || 'N/A', 
           description: newReport.letter_grade_descriptive || 'No description available' 
         },
-        improvement: improvement >= 0 ? `+${improvement.toFixed(1)}%` : `${improvement.toFixed(1)}%`
+        improvement: improvement >= 0 ? `+${improvement.toFixed(2)}%` : `${improvement.toFixed(2)}%`
       },
       
       // Category comparisons based on actual report data
@@ -216,18 +216,18 @@ const ComparisonScreen = () => {
         
         categories[category.name || `Category ${index + 1}`] = {
           before: { 
-            score: currentPercentage, 
+            score: Number(currentPercentage.toFixed(2)), 
             rawScore: currentScore,
             maxScore: currentMaxScore,
             status: getScoreStatus(currentPercentage) 
           },
           after: { 
-            score: newPercentage, 
+            score: Number(newPercentage.toFixed(2)), 
             rawScore: newScore,
             maxScore: newMaxScore,
             status: getScoreStatus(newPercentage) 
           },
-          improvement: improvement >= 0 ? `+${improvement.toFixed(1)}%` : `${improvement.toFixed(1)}%`,
+          improvement: improvement >= 0 ? `+${improvement.toFixed(2)}%` : `${improvement.toFixed(2)}%`,
           metrics: createMetricsComparison(category, newCategory)
         };
       }
@@ -261,13 +261,13 @@ const ComparisonScreen = () => {
         const improvement = newPercentage - currentPercentage;
         
         metrics[metric.name || `Metric ${index + 1}`] = {
-          before: currentPercentage,
+          before: Number(currentPercentage.toFixed(2)),
           rawBefore: currentScore,
           maxBefore: currentMaxScore,
-          after: newPercentage,
+          after: Number(newPercentage.toFixed(2)),
           rawAfter: newScore,
           maxAfter: newMaxScore,
-          improvement: improvement >= 0 ? `+${improvement.toFixed(1)}%` : `${improvement.toFixed(1)}%`
+          improvement: improvement >= 0 ? `+${improvement.toFixed(2)}%` : `${improvement.toFixed(2)}%`
         };
       }
     });
@@ -283,7 +283,7 @@ const ComparisonScreen = () => {
         before: { critical: 0, moderate: 0, minor: 0, total: 0 },
         after: { critical: 0, moderate: 0, minor: 0, total: 0 },
         resolved: 0,
-        resolutionRate: '0%'
+        resolutionRate: '0.00%'
       };
     }
     
@@ -310,7 +310,7 @@ const ComparisonScreen = () => {
         total: totalAfter 
       },
       resolved: resolved > 0 ? resolved : 0,
-      resolutionRate: totalBefore > 0 ? `${Math.round((resolved / totalBefore) * 100)}%` : '0%'
+      resolutionRate: totalBefore > 0 ? `${((resolved / totalBefore) * 100).toFixed(2)}%` : '0.00%'
     };
   };
 
@@ -430,13 +430,13 @@ const ComparisonScreen = () => {
                           <div className="score-item">
                             <span className="score-label">Before:</span>
                             <span className="score-value">
-                              {job.stats.current_report?.llm_readiness_score || 0}%
+                              {Number((job.stats.current_report?.llm_readiness_score || 0).toFixed(2))}%
                             </span>
                           </div>
                           <div className="score-item">
                             <span className="score-label">After:</span>
                             <span className="score-value improved">
-                              {job.stats.new_report?.llm_readiness_score || 0}%
+                              {Number((job.stats.new_report?.llm_readiness_score || 0).toFixed(2))}%
                             </span>
                           </div>
                         </div>
@@ -560,7 +560,7 @@ const ComparisonScreen = () => {
                     // Extract the percentage difference (remove + or - and %)
                     const improvement = parseFloat(category.improvement.replace(/[^\d.-]/g, ''));
                     return isNaN(improvement) ? max : (Math.abs(improvement) > Math.abs(max) ? improvement : max);
-                  }, 0).toFixed(1) : '0.0'
+                  }, 0).toFixed(2) : '0.00'
                 }%
               </span>
               <span className="stat-label">improvement</span>
