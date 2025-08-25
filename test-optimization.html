@@ -59,7 +59,7 @@
             border-radius: var(--border-radius-large);
             box-shadow: var(--shadow-light);
             display: grid;
-            grid-template-columns: 1fr auto auto auto;
+            grid-template-columns: 1fr auto auto;
             gap: 1.5rem;
             align-items: center;
             transition: var(--transition);
@@ -88,7 +88,7 @@
         .audit-info {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.5rem;
         }
 
         .audit-info h3 {
@@ -106,6 +106,12 @@
             font-weight: 500;
         }
 
+        .status-progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
         .status-badge {
             align-self: flex-start;
             padding: 0.375rem 0.75rem;
@@ -115,6 +121,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-right: 1rem;
         }
 
         .status-completed { 
@@ -370,6 +377,36 @@
             background: linear-gradient(135deg, #1a2a5a 0%, #223067 100%);
         }
 
+        /* Progress Bar Styles */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--accent-yellow) 100%);
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--muted-text);
+            min-width: 50px;
+            text-align: right;
+        }
+
         /* Responsive Design */
         @media (max-width: 1200px) {
             .audit-card {
@@ -397,6 +434,10 @@
                 text-align: center;
             }
             
+            .progress-container {
+                justify-content: center;
+            }
+            
             .job-stats {
                 flex-direction: row;
                 justify-content: center;
@@ -419,6 +460,156 @@
             
             .status-badge {
                 align-self: center;
+            }
+        }
+
+        /* Refined Comparison Page Styles */
+        .comparison-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            background-color: var(--light-bg);
+        }
+
+        .category-section {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .category-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin: 0;
+        }
+
+        .category-score {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .comparison-bars {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            height: 6px;
+        }
+
+        .bar {
+            flex-grow: 1;
+            height: 100%;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-right: 0.5rem;
+            background-color: var(--border-color);
+        }
+
+        .bar-before {
+            background-color: #FF6B6B;
+        }
+
+        .bar-after {
+            background-color: #4ECDC4;
+        }
+
+        .metrics-breakdown {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background-color: var(--alt-light-bg);
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s ease;
+        }
+
+        .metric-item:hover {
+            background-color: #f0f4f8;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--muted-text);
+            font-weight: 600;
+        }
+
+        .metric-score {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .metric-score-before {
+            color: #FF6B6B;
+            font-weight: 600;
+        }
+
+        .metric-score-after {
+            color: #4ECDC4;
+            font-weight: 600;
+        }
+
+        .metric-change {
+            font-size: 0.675rem;
+            font-weight: 600;
+            padding: 0.125rem 0.375rem;
+            border-radius: 8px;
+        }
+
+        .metric-change-positive {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .metric-change-neutral {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-container {
+                padding: 0.75rem;
+            }
+
+            .category-section {
+                padding: 0.75rem;
+            }
+
+            .metric-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .metric-label {
+                margin-bottom: 0.25rem;
+            }
+
+            .metric-score {
+                width: 100%;
+                justify-content: space-between;
             }
         }
     </style>
@@ -484,13 +675,10 @@
                 <!-- Job 2: Currently Optimizing -->
                 <div class="audit-card">
                     <div class="audit-info">
-                        <h3>https://kezban.co.uk</h3>
-                        <p class="audit-date">8/21/2025</p>
-                        <span class="status-badge status-optimizing">OPTIMIZING</span>
-                    </div>
-                    
-                    <div class="audit-progress">
-                        <div class="progress-container">
+                        <h3>https://kezban.co.uk/</h3>
+                        <p class="audit-date">8/25/2025</p>
+                        <div class="status-progress-container">
+                            <span class="status-badge status-optimizing">OPTIMIZING</span>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: 65%"></div>
                             </div>
@@ -498,7 +686,12 @@
                         </div>
                     </div>
                     
-                    <!-- No job stats shown while processing -->
+                    <div class="job-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Pages</span>
+                            <span class="stat-value">0</span>
+                        </div>
+                    </div>
                     
                     <div class="action-buttons">
                         <button class="btn btn-secondary" disabled>
@@ -514,12 +707,9 @@
                 <div class="audit-card">
                     <div class="audit-info">
                         <h3>https://processing.example</h3>
-                        <p class="audit-date">8/21/2025</p>
-                        <span class="status-badge status-processing">PROCESSING</span>
-                    </div>
-                    
-                    <div class="audit-progress">
-                        <div class="progress-container">
+                        <p class="audit-date">8/25/2025</p>
+                        <div class="status-progress-container">
+                            <span class="status-badge status-processing">PROCESSING</span>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: 36%"></div>
                             </div>
@@ -527,7 +717,12 @@
                         </div>
                     </div>
                     
-                    <!-- No job stats shown while processing -->
+                    <div class="job-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Pages</span>
+                            <span class="stat-value">0</span>
+                        </div>
+                    </div>
                     
                     <div class="action-buttons">
                         <button class="btn btn-outline" disabled>
@@ -597,6 +792,84 @@
             <code>POST /api/optimize</code>
             <p>With payload: <code>{"job_id": "job-uuid"}</code></p>
             <p>After optimization, the job details are fetched again to check for the <code>new_report</code> parameter.</p>
+        </div>
+
+        <div class="test-section">
+            <h2>Comparison Report</h2>
+            <div class="comparison-container">
+                <div class="category-section">
+                    <div class="category-header">
+                        <h3 class="category-title">AI Content Processing & Extraction</h3>
+                        <div class="category-score">+23.33%</div>
+                    </div>
+                    
+                    <div class="comparison-bars">
+                        <div class="bar bar-before" style="width: 40%;"></div>
+                        <div class="bar bar-after" style="width: 63.33%;"></div>
+                    </div>
+                    
+                    <div class="metrics-breakdown">
+                        <div class="metric-item">
+                            <span class="metric-label">LLM Readability & Chunk Relevance</span>
+                            <div class="metric-score">
+                                <span class="metric-score-before">75%</span>
+                                <span class="metric-change metric-change-positive">+25.00%</span>
+                                <span class="metric-score-after">100%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-item">
+                            <span class="metric-label">Semantic Density & Entity Coverage</span>
+                            <div class="metric-score">
+                                <span class="metric-score-before">30%</span>
+                                <span class="metric-change metric-change-positive">+40.00%</span>
+                                <span class="metric-score-after">70%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-item">
+                            <span class="metric-label">Contextual Information Architecture</span>
+                            <div class="metric-score">
+                                <span class="metric-score-before">62.5%</span>
+                                <span class="metric-change metric-change-neutral">+0.00%</span>
+                                <span class="metric-score-after">62.5%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="category-section">
+                    <div class="category-header">
+                        <h3 class="category-title">LLM Citation & Trust Signals</h3>
+                        <div class="category-score">+42.00%</div>
+                    </div>
+                    
+                    <div class="comparison-bars">
+                        <div class="bar bar-before" style="width: 30%;"></div>
+                        <div class="bar bar-after" style="width: 72%;"></div>
+                    </div>
+                    
+                    <div class="metrics-breakdown">
+                        <div class="metric-item">
+                            <span class="metric-label">Citation Accuracy</span>
+                            <div class="metric-score">
+                                <span class="metric-score-before">40%</span>
+                                <span class="metric-change metric-change-positive">+35.00%</span>
+                                <span class="metric-score-after">75%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-item">
+                            <span class="metric-label">Source Credibility</span>
+                            <div class="metric-score">
+                                <span class="metric-score-before">25%</span>
+                                <span class="metric-change metric-change-positive">+50.00%</span>
+                                <span class="metric-score-after">75%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
