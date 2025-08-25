@@ -136,6 +136,13 @@ class ApiService {
     return this.makeRequest('/domains');
   }
 
+  // Cleanup Jobs
+  async deleteAllJobs() {
+    return this.makeRequest('/cleanup', {
+      method: 'DELETE',
+    });
+  }
+
   // Utility methods
   async checkJobStatus(jobId) {
     return this.getJobDetails(jobId);

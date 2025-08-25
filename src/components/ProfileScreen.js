@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import apiService from '../services/api';
 
 const ProfileScreen = () => {
   const { state, updateUserProfile, showNotification } = useApp();
@@ -15,6 +16,8 @@ const ProfileScreen = () => {
     weeklyReports: true,
     autoAudits: false
   });
+
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +46,23 @@ const ProfileScreen = () => {
 
     updateUserProfile(updatedUser);
     showNotification('Profile updated successfully!', 'success');
+  };
+
+  const handleDeleteJobs = async () => {
+    if (!window.confirm('Are you sure you want to delete all your jobs? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await apiService.deleteAllJobs();
+      showNotification('All jobs deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting jobs:', error);
+      showNotification('Failed to delete jobs. Please try again.', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -152,6 +172,23 @@ const ProfileScreen = () => {
             <div className="security-options">
               <button className="btn-outline">Change Password</button>
               <button className="btn-outline">Enable Two-Factor Authentication</button>
+            </div>
+          </div>
+          
+          <div className="profile-section">
+            <h2>Job Management</h2>
+            <div className="job-management">
+              <p>Manage your scraping jobs and data</p>
+              <button 
+                className="btn-danger" 
+                onClick={handleDeleteJobs}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete All Jobs'}
+              </button>
+              <p className="warning-text">
+                ⚠️ This will permanently delete all your scraping jobs and their data. This action cannot be undone.
+              </p>
             </div>
           </div>
           
