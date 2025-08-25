@@ -14,6 +14,64 @@ const ComparisonScreen = () => {
   const [comparisonData, setComparisonData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [faviconUrl, setFaviconUrl] = useState(null);
+  const [faviconLoading, setFaviconLoading] = useState(false);
+  const [expandedImprovements, setExpandedImprovements] = useState(false);
+
+  // Helper function to fetch favicon URL
+  const getFaviconUrl = (domain) => {
+    if (!domain || domain === 'Unknown Domain') return null;
+    
+    // Clean the domain to get just the hostname
+    let cleanDomain = domain;
+    try {
+      // Remove protocol if present
+      cleanDomain = domain.replace(/^https?:\/\//, '');
+      // Remove www. if present
+      cleanDomain = cleanDomain.replace(/^www\./, '');
+      // Remove trailing slash and path
+      cleanDomain = cleanDomain.split('/')[0];
+      
+      // Use DuckDuckGo's favicon service which works better with HTTPS and Netlify
+      return `https://icons.duckduckgo.com/ip3/${cleanDomain}.ico`;
+    } catch (error) {
+      console.error('Error processing domain for favicon:', error);
+      return null;
+    }
+  };
+
+  // Handle favicon load error with multiple fallbacks
+  const handleFaviconError = (e, domain) => {
+    const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+    const currentSrc = e.target.src;
+    
+    // Fallback chain: DuckDuckGo -> Google -> Direct domain -> Hide
+    if (currentSrc.includes('duckduckgo.com')) {
+      // Try Google's favicon service
+      e.target.src = `https://www.google.com/s2/favicons?domain=${cleanDomain}&sz=48`;
+    } else if (currentSrc.includes('google.com')) {
+      // Try direct domain favicon
+      e.target.src = `https://${cleanDomain}/favicon.ico`;
+    } else {
+      // If all services fail, remove the favicon URL to show placeholder
+      setFaviconLoading(false);
+      setFaviconUrl(null);
+    }
+  };
+
+  // Handle successful favicon load
+  const handleFaviconLoad = () => {
+    setFaviconLoading(false);
+  };
+
+  // Load favicon when comparison data changes
+  useEffect(() => {
+    if (comparisonData?.domain) {
+      setFaviconLoading(true);
+      const favicon = getFaviconUrl(comparisonData.domain);
+      setFaviconUrl(favicon);
+    }
+  }, [comparisonData]);
 
   // Get data from navigation state or fetch from API
   useEffect(() => {
@@ -24,10 +82,19 @@ const ComparisonScreen = () => {
           try {
             setIsLoading(true);
             setError(null);
+            
+            // Check if we have complete job details, if not fetch them
+            let jobDetails = location.state.jobDetails;
+            if (location.state.jobId && (!jobDetails || !jobDetails.detailed_improvements)) {
+
+              jobDetails = await apiService.getJobDetails(location.state.jobId);
+            }
+            
             const data = createComparisonData(
               location.state.domain || 'Unknown Domain',
               location.state.currentReport,
-              location.state.newReport
+              location.state.newReport,
+              jobDetails
             );
             setComparisonData(data);
           } catch (error) {
@@ -48,7 +115,8 @@ const ComparisonScreen = () => {
               const data = createComparisonData(
                 location.state.domain || jobDetails.domain || 'Unknown Domain',
                 jobDetails.stats.current_report,
-                jobDetails.stats.new_report
+                jobDetails.stats.new_report,
+                jobDetails
               );
               setComparisonData(data);
             } else {
@@ -126,7 +194,8 @@ const ComparisonScreen = () => {
         const data = createComparisonData(
           jobDetails.domain || 'Unknown Domain',
           jobDetails.stats.current_report,
-          jobDetails.stats.new_report
+          jobDetails.stats.new_report,
+          jobDetails
         );
         setComparisonData(data);
       } else {
@@ -141,11 +210,13 @@ const ComparisonScreen = () => {
   };
 
   // Create comparison data from two reports
-  const createComparisonData = (domain, currentReport, newReport) => {
+  const createComparisonData = (domain, currentReport, newReport, jobDetails = null) => {
     // Add null checks
     if (!currentReport || !newReport) {
       throw new Error('Both current and new reports are required');
     }
+    
+
     
     const currentScore = currentReport.llm_readiness_score || 0;
     const newScore = newReport.llm_readiness_score || 0;
@@ -155,7 +226,7 @@ const ComparisonScreen = () => {
     const newPercentage = newScore;
     const improvement = newPercentage - currentPercentage;
     
-    return {
+    const data = {
       domain: domain || 'example.com',
       scanDate: new Date().toLocaleDateString(),
       
@@ -185,8 +256,27 @@ const ComparisonScreen = () => {
         'Optimization completed successfully',
         'LLM readiness improved',
         'AI compatibility enhanced'
-      ]
+      ],
+      
+      // Detailed improvements with expandable information
+      detailedImprovements: jobDetails?.detailed_improvements || jobDetails?.stats?.detailed_improvements || [],
+      
+      // Netlify deployment URLs
+      deploymentUrls: {
+        before: jobDetails?.stats?.netlify_site?.url || null,
+        after: jobDetails?.stats?.optimized_netlify_site?.url || null
+      },
+      
+      // GitHub repository URLs
+      githubUrls: {
+        before: jobDetails?.stats?.github_repository?.url || null,
+        after: jobDetails?.stats?.optimized_github_repository?.url || null
+      }
     };
+    
+
+    
+    return data;
   };
 
   // Create category comparisons from actual report data
@@ -497,7 +587,22 @@ const ComparisonScreen = () => {
         <div className="comparison-header">
           <h1>LLM Discovery Optimization Audit Report</h1>
           <div className="domain-info">
-            <h2>Website: {comparisonData?.domain || 'Unknown Domain'}</h2>
+            <div className="website-header">
+              {faviconUrl ? (
+                <img 
+                  src={faviconUrl} 
+                  alt="Website favicon" 
+                  className={`website-favicon ${faviconLoading ? 'loading' : ''}`}
+                  onLoad={handleFaviconLoad}
+                  onError={(e) => handleFaviconError(e, comparisonData?.domain)}
+                />
+              ) : (
+                <div className="website-favicon-placeholder">
+                  <FontAwesomeIcon icon="globe" />
+                </div>
+              )}
+              <h2>Website: {comparisonData?.domain || 'Unknown Domain'}</h2>
+            </div>
             <p className="scan-date">Comparison generated on {comparisonData?.scanDate || 'Unknown Date'}</p>
             <div className="overall-improvement">
               <span className="improvement-label">Overall Improvement</span>
@@ -519,6 +624,20 @@ const ComparisonScreen = () => {
                 </div>
                 <div className="score-value">{comparisonData?.overall?.before?.score || 0}/100</div>
                 <div className="score-description">{comparisonData?.overall?.before?.description || 'No description available'}</div>
+
+                {comparisonData?.deploymentUrls?.before && (
+                  <div className="deployment-link">
+                    <a 
+                      href={comparisonData.deploymentUrls.before} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="deployment-btn before"
+                    >
+                      <FontAwesomeIcon icon="external-link-alt" />
+                      View Original Site
+                    </a>
+                  </div>
+                )}
               </div>
               
               <div className="improvement-arrow">
@@ -532,6 +651,19 @@ const ComparisonScreen = () => {
                 </div>
                 <div className="score-value">{comparisonData?.overall?.after?.score || 0}/100</div>
                 <div className="score-description">{comparisonData?.overall?.after?.description || 'No description available'}</div>
+                {comparisonData?.deploymentUrls?.after && (
+                  <div className="deployment-link">
+                    <a 
+                      href={comparisonData.deploymentUrls.after} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="deployment-btn after"
+                    >
+                      <FontAwesomeIcon icon="external-link-alt" />
+                      View Optimized Site
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -662,7 +794,23 @@ const ComparisonScreen = () => {
         {/* Key Improvements Section */}
         {comparisonData?.keyImprovements && comparisonData.keyImprovements.length > 0 && (
           <div className="key-improvements-section">
-            <h2>Key Improvements</h2>
+            <div className="improvements-header">
+              <h2>Key Improvements</h2>
+
+              {comparisonData?.detailedImprovements && comparisonData.detailedImprovements.length > 0 && (
+                <button 
+                  className="expand-details-btn"
+                  onClick={() => setExpandedImprovements(!expandedImprovements)}
+                >
+                  <FontAwesomeIcon 
+                    icon={expandedImprovements ? "chevron-up" : "chevron-down"} 
+                    className="expand-icon" 
+                  />
+                  {expandedImprovements ? 'Hide Details' : 'Show Details'}
+                </button>
+              )}
+            </div>
+            
             <div className="improvements-list">
               {comparisonData.keyImprovements.map((improvement, index) => (
                 <div key={index} className="improvement-item">
@@ -671,6 +819,37 @@ const ComparisonScreen = () => {
                 </div>
               ))}
             </div>
+            
+            {/* Detailed Improvements - Expandable */}
+            {expandedImprovements && comparisonData?.detailedImprovements && comparisonData.detailedImprovements.length > 0 && (
+              <div className="detailed-improvements">
+                <h3>Detailed Implementation Information</h3>
+                {comparisonData.detailedImprovements.map((detail, detailIndex) => (
+                  <div key={detailIndex} className="detail-group">
+                    <div className="detail-timestamp">
+                      <FontAwesomeIcon icon="clock" />
+                      {new Date(detail.timestamp).toLocaleString()}
+                    </div>
+                    {Object.entries(detail.improvements || {}).map(([key, improvement]) => (
+                      <div key={key} className="detail-item">
+                        <h4 className="detail-title">{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
+                        <p className="detail-description">{improvement.description}</p>
+                        <div className="detail-files">
+                          <FontAwesomeIcon icon="file-code" />
+                          <span>Files modified: {improvement.files_modified?.length || 0}</span>
+                          {improvement.lines_added > 0 && (
+                            <span className="lines-added">+{improvement.lines_added} lines</span>
+                          )}
+                          {improvement.lines_removed > 0 && (
+                            <span className="lines-removed">-{improvement.lines_removed} lines</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
         

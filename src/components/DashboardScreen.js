@@ -315,13 +315,14 @@ const DashboardScreen = () => {
       const jobDetails = await apiService.getJobDetails(jobId);
       
       if (jobDetails.stats && jobDetails.stats.current_report && jobDetails.stats.new_report) {
-        // Navigate to comparison screen with the job data
+        // Navigate to comparison screen with the complete job data
         navigate('/comparison', { 
           state: { 
             jobId, 
             domain, 
             currentReport: jobDetails.stats.current_report,
-            newReport: jobDetails.stats.new_report
+            newReport: jobDetails.stats.new_report,
+            jobDetails: jobDetails // Pass the complete job details for new features
           } 
         });
       } else {

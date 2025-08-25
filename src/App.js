@@ -6,9 +6,9 @@ import {
   faDownload, faMagicWandSparkles, faCheckDouble, faExclamationTriangle,
   faExclamationCircle, faCheckCircle, faRobot, faTachometerAlt,
   faEnvelope, faComments, faBook, faTimes, faInfoCircle,
-  faFilePdf, faFileExcel, faCode, faSpinner, faChevronDown,
+  faFilePdf, faFileExcel, faCode, faSpinner, faChevronDown, faChevronUp,
   faChartLine, faShieldAlt, faUniversalAccess, faArrowRight, faCheck,
-  faTimesCircle, faChartBar
+  faTimesCircle, faChartBar, faExternalLinkAlt, faGlobe
 } from '@fortawesome/free-solid-svg-icons';
 
 import { AppProvider } from './context/AppContext';
@@ -33,9 +33,9 @@ library.add(
   faDownload, faMagicWandSparkles, faCheckDouble, faExclamationTriangle,
   faExclamationCircle, faCheckCircle, faRobot, faTachometerAlt,
   faEnvelope, faComments, faBook, faTimes, faInfoCircle,
-  faFilePdf, faFileExcel, faCode, faSpinner, faChevronDown,
+  faFilePdf, faFileExcel, faCode, faSpinner, faChevronDown, faChevronUp,
   faChartLine, faShieldAlt, faUniversalAccess, faArrowRight, faCheck,
-  faTimesCircle, faChartBar
+  faTimesCircle, faChartBar, faExternalLinkAlt, faGlobe
 );
 
 // Component to conditionally render Footer
