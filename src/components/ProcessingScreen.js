@@ -16,20 +16,38 @@ const ProcessingScreen = () => {
   useEffect(() => {
     if (state.currentJobId && !isPolling) {
       setIsPolling(true);
+      let completionCheckCount = 0;
+      const maxCompletionChecks = 3; // Check up to 3 times after completion status
+      
       const pollJobStatus = async () => {
         try {
           const job = await apiService.getJobDetails(state.currentJobId);
           setJobStatus(job);
           
           if (job.status === 'completed') {
-            // Job completed, redirect to comparison
-            setTimeout(() => {
-              navigate('/comparison');
-            }, 2000);
+            // Ensure we have valid statistics before proceeding
+            if (job.stats && (job.stats.pages_scraped > 0 || job.stats.total_urls > 0 || completionCheckCount >= maxCompletionChecks)) {
+              // Job completed with stats, redirect to comparison with a shorter delay
+              setTimeout(() => {
+                navigate('/comparison', { state: { jobId: job.job_id, domain: job.domain } });
+              }, 1500);
+            } else {
+              // Status is completed but stats not ready, continue polling for a few more attempts
+              completionCheckCount++;
+              if (completionCheckCount >= maxCompletionChecks) {
+                // Max attempts reached, proceed anyway but with longer delay to let backend finish
+                setTimeout(() => {
+                  navigate('/comparison', { state: { jobId: job.job_id, domain: job.domain } });
+                }, 3000);
+              }
+            }
           } else if (job.status === 'failed') {
             // Job failed, show error
             alert(`Job failed: ${job.error || 'Unknown error'}`);
             navigate('/dashboard');
+          } else {
+            // Reset completion check count for non-completed statuses
+            completionCheckCount = 0;
           }
         } catch (error) {
           console.error('Error polling job status:', error);
@@ -150,23 +168,32 @@ const ProcessingScreen = () => {
         </div>
 
         {/* Job Statistics */}
-        {jobStatus && jobStatus.stats && (
+        {jobStatus && (
           <div className="job-statistics">
             <h3>Job Statistics</h3>
             <div className="stats-grid">
               <div className="stat-card">
-                <span className="stat-number">{jobStatus.stats.pages_scraped || 0}</span>
+                <span className="stat-number">
+                  {jobStatus.stats?.pages_scraped || 
+                   (jobStatus.status === 'completed' && !jobStatus.stats?.pages_scraped ? 'Loading...' : '0')}
+                </span>
                 <span className="stat-label">Pages Scraped</span>
               </div>
               <div className="stat-card">
-                <span className="stat-number">{jobStatus.stats.assets_downloaded || 0}</span>
+                <span className="stat-number">
+                  {jobStatus.stats?.assets_downloaded || 
+                   (jobStatus.status === 'completed' && !jobStatus.stats?.assets_downloaded ? 'Loading...' : '0')}
+                </span>
                 <span className="stat-label">Assets Downloaded</span>
               </div>
               <div className="stat-card">
-                <span className="stat-number">{jobStatus.stats.total_urls || 0}</span>
+                <span className="stat-number">
+                  {jobStatus.stats?.total_urls || 
+                   (jobStatus.status === 'completed' && !jobStatus.stats?.total_urls ? 'Loading...' : '0')}
+                </span>
                 <span className="stat-label">Total URLs</span>
               </div>
-              {jobStatus.stats.errors_count > 0 && (
+              {jobStatus.stats?.errors_count > 0 && (
                 <div className="stat-card error">
                   <span className="stat-number">{jobStatus.stats.errors_count}</span>
                   <span className="stat-label">Errors</span>

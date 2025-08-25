@@ -41,15 +41,23 @@ const DashboardScreen = () => {
   // Poll for job updates every 2 seconds for processing/pending jobs
   useEffect(() => {
     const pollJobs = async () => {
-      const processingJobs = recentJobs.filter(job => 
-        job.status === 'processing' || job.status === 'pending' || job.status === 'running'
-      );
+      const jobsToUpdate = recentJobs.filter(job => {
+        // Poll processing/pending jobs
+        if (job.status === 'processing' || job.status === 'pending' || job.status === 'running') {
+          return true;
+        }
+        // Also poll recently completed jobs that might not have stats yet
+        if (job.status === 'completed' && (!job.stats || !job.stats.pages_scraped)) {
+          return true;
+        }
+        return false;
+      });
       
-      if (processingJobs.length === 0) return;
+      if (jobsToUpdate.length === 0) return;
 
       try {
         const updatedJobs = await Promise.all(
-          processingJobs.map(async (job) => {
+          jobsToUpdate.map(async (job) => {
             try {
               const jobDetails = await apiService.getJobDetails(job.job_id);
               return jobDetails;
@@ -63,7 +71,7 @@ const DashboardScreen = () => {
         // Update jobs with new data
         setRecentJobs(prevJobs => 
           prevJobs.map(job => {
-            const updatedJob = updatedJobs.find(updated => updated.job_id === job.job_id);
+            const updatedJob = updatedJobs.find(updated => updated && updated.job_id === job.job_id);
             return updatedJob || job;
           })
         );
@@ -447,25 +455,27 @@ const DashboardScreen = () => {
                     )}
                   </div>
 
-                  {/* Job Statistics - Only show for completed jobs */}
-                  {job.status === 'completed' && job.stats && (
+                  {/* Job Statistics - Show for completed jobs */}
+                  {job.status === 'completed' && (
                     <div className="job-stats">
                       <div className="stat-item">
                         <span className="stat-label">Pages</span>
-                        <span className="stat-value">{job.stats.pages_scraped || 0}</span>
+                        <span className="stat-value">
+                          {job.stats?.pages_scraped || (job.stats ? 'Loading...' : 0)}
+                        </span>
                       </div>
-                      {job.stats.assets_downloaded && (
-                        <div className="stat-item">
-                          <span className="stat-label">Assets</span>
-                          <span className="stat-value">{job.stats.assets_downloaded}</span>
-                        </div>
-                      )}
-                      {job.stats.total_urls && (
-                        <div className="stat-item">
-                          <span className="stat-label">URLs</span>
-                          <span className="stat-value">{job.stats.total_urls}</span>
-                        </div>
-                      )}
+                      <div className="stat-item">
+                        <span className="stat-label">Assets</span>
+                        <span className="stat-value">
+                          {job.stats?.assets_downloaded || (job.stats ? 'Loading...' : 0)}
+                        </span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">URLs</span>
+                        <span className="stat-value">
+                          {job.stats?.total_urls || (job.stats ? 'Loading...' : 0)}
+                        </span>
+                      </div>
                     </div>
                   )}
 

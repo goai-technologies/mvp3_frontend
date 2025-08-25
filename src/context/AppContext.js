@@ -31,6 +31,8 @@ const getInitialAuthState = () => {
 const initialState = {
   ...getInitialAuthState(),
   currentDomain: null,
+  currentJobId: null,
+  currentJobStats: null,
   auditProgress: {
     scraping: 0,
     initialAudit: 0,
@@ -76,7 +78,9 @@ export const ACTIONS = {
   SET_CURRENT_REPORT: 'SET_CURRENT_REPORT',
   ADD_NOTIFICATION: 'ADD_NOTIFICATION',
   REMOVE_NOTIFICATION: 'REMOVE_NOTIFICATION',
-  UPDATE_USER_PROFILE: 'UPDATE_USER_PROFILE'
+  UPDATE_USER_PROFILE: 'UPDATE_USER_PROFILE',
+  SET_CURRENT_JOB: 'SET_CURRENT_JOB',
+  UPDATE_JOB_STATS: 'UPDATE_JOB_STATS'
 };
 
 // Reducer function
@@ -110,6 +114,7 @@ function appReducer(state, action) {
       return {
         ...state,
         currentDomain: action.payload.domain,
+        currentJobId: action.payload.jobId || null,
         auditStatus: 'processing',
         auditProgress: {
           scraping: 0,
@@ -177,6 +182,22 @@ function appReducer(state, action) {
         ...state,
         currentUser: {
           ...state.currentUser,
+          ...action.payload
+        }
+      };
+    
+    case ACTIONS.SET_CURRENT_JOB:
+      return {
+        ...state,
+        currentJobId: action.payload.jobId,
+        currentJobStats: action.payload.stats || null
+      };
+    
+    case ACTIONS.UPDATE_JOB_STATS:
+      return {
+        ...state,
+        currentJobStats: {
+          ...state.currentJobStats,
           ...action.payload
         }
       };
@@ -298,10 +319,10 @@ export function AppProvider({ children }) {
       dispatch({ type: ACTIONS.LOGOUT });
     },
     
-    startAudit: (domain) => {
+    startAudit: (domain, jobId = null) => {
       dispatch({
         type: ACTIONS.START_AUDIT,
-        payload: { domain }
+        payload: { domain, jobId }
       });
     },
     
@@ -337,6 +358,20 @@ export function AppProvider({ children }) {
       dispatch({
         type: ACTIONS.UPDATE_USER_PROFILE,
         payload: updates
+      });
+    },
+    
+    setCurrentJob: (jobId, stats = null) => {
+      dispatch({
+        type: ACTIONS.SET_CURRENT_JOB,
+        payload: { jobId, stats }
+      });
+    },
+    
+    updateJobStats: (stats) => {
+      dispatch({
+        type: ACTIONS.UPDATE_JOB_STATS,
+        payload: stats
       });
     }
   };
