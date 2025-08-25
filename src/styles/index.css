@@ -5651,3 +5651,25 @@ a:focus {
     opacity: 1;
   }
 }
+
+.not-found-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  background-color: var(--background-color);
+  color: var(--dark-text);
+}
+
+.not-found-page h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--primary-blue);
+}
+
+.not-found-page p {
+  font-size: 1.2rem;
+  color: var(--muted-text);
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { 
   faHome, faUser, faQuestionCircle, faSignOutAlt, faSearch, 
@@ -37,6 +37,29 @@ library.add(
   faChartLine, faShieldAlt, faUniversalAccess, faArrowRight, faCheck,
   faTimesCircle, faChartBar, faExternalLinkAlt, faGlobe
 );
+
+// Add a 404 page component
+const NotFoundPage = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    // Redirect to dashboard or login based on authentication
+    const token = localStorage.getItem('llmredi_token');
+    if (token) {
+      navigate('/dashboard', { replace: true });
+    } else {
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
+
+  return (
+    <div className="not-found-page">
+      <h1>Page Not Found</h1>
+      <p>Redirecting...</p>
+    </div>
+  );
+};
 
 // Component to conditionally render Footer
 function AppLayout() {
@@ -94,7 +117,8 @@ function AppLayout() {
               <HelpScreen />
             </ProtectedRoute>
           } />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* Catch-all route for 404 handling */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       {!isLoginPage && <Footer />}

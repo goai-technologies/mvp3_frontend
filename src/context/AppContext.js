@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { config } from '../config/environment.js';
 
 // Check for existing authentication on app load
 const getInitialAuthState = () => {
@@ -247,8 +248,8 @@ export function AppProvider({ children }) {
       
       if (savedUser && savedToken) {
         try {
-          // Validate token with API
-          const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:5002'}/api/me`, {
+          // Validate token with API using the config from environment
+          const response = await fetch(`${config.API_BASE_URL}/api/me`, {
             headers: {
               'Authorization': `Bearer ${savedToken}`,
               'Content-Type': 'application/json'
