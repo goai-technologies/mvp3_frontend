@@ -1,25 +1,32 @@
 // API Service for Website Scraping Platform
 import { config } from '../config/environment.js';
 
-const API_BASE_URL = config.API_BASE_URL;
-const API_URL = `${API_BASE_URL}/api`;
-
 class ApiService {
   constructor() {
-    this.baseURL = API_URL;
-    this.token = localStorage.getItem('auth_token') || null;
+    // Use relative path in development to leverage proxy, full URL in production
+    this.baseURL = process.env.NODE_ENV === 'production' 
+      ? `${config.API_BASE_URL}/api`
+      : '/api';
+    this.token = localStorage.getItem('llmredi_token') || null;
   }
 
   // Set authentication token
   setToken(token) {
     this.token = token;
-    localStorage.setItem('auth_token', token);
+    localStorage.setItem('llmredi_token', token);
   }
 
   // Clear authentication token
   clearToken() {
     this.token = null;
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem('llmredi_token');
+  }
+
+  // Refresh token from localStorage (useful for debugging)
+  refreshToken() {
+    this.token = localStorage.getItem('llmredi_token') || null;
+    console.log('Token refreshed from localStorage:', this.token ? 'Present' : 'Missing');
+    return this.token;
   }
 
   // Get headers with authentication
@@ -170,6 +177,93 @@ class ApiService {
     }
     
     throw new Error('Job completion timeout');
+  }
+
+  // LLM Readiness Analysis
+  async analyzeLLMReadiness(domain) {
+    console.log('Making API call to:', `${this.baseURL}/llm-analyze`);
+    console.log('Domain:', domain);
+    console.log('Auth token:', this.token ? 'Present' : 'Missing');
+    
+    return this.makeRequest('/llm-analyze', {
+      method: 'POST',
+      body: JSON.stringify({ domain }),
+    });
+  }
+
+  // Get previous LLM readiness analyses history
+  async getLLMAnalysisHistory() {
+    console.log('Making API call to:', `${this.baseURL}/agentanalyse/history`);
+    console.log('Auth token:', this.token ? 'Present' : 'Missing');
+    return this.makeRequest('/agentanalyse/history', {
+      method: 'GET',
+    });
+  }
+
+  // Brand LLM Analysis
+  async analyzeBrandLLM(brandData) {
+    console.log('Making API call to:', `${this.baseURL}/brand-llm-analysis`);
+    console.log('Brand data:', brandData);
+    console.log('Auth token:', this.token ? 'Present' : 'Missing');
+    
+    return this.makeRequest('/brand-llm-analysis', {
+      method: 'POST',
+      body: JSON.stringify(brandData),
+    });
+  }
+
+  // Get Previous Brand Analyses
+  async getPreviousBrandAnalyses() {
+    console.log('Making API call to:', `${this.baseURL}/brand-llm-analysis/all`);
+    console.log('Full URL will be:', process.env.NODE_ENV === 'production' 
+      ? `${this.baseURL}/brand-llm-analysis/all`
+      : 'Proxied to: http://localhost:5002/api/brand-llm-analysis/all'
+    );
+    console.log('Auth token in API service:', this.token ? 'Present' : 'Missing');
+    console.log('Token value in API service:', this.token);
+    
+    return this.makeRequest('/brand-llm-analysis/all', {
+      method: 'GET',
+    });
+  }
+
+  // Competition Analysis
+  async startCompetitionAnalysis(analysisData) {
+    console.log('Making API call to:', `${this.baseURL}/competition-analysis`);
+    console.log('Analysis data:', analysisData);
+    console.log('Auth token:', this.token ? 'Present' : 'Missing');
+    
+    return this.makeRequest('/competition-analysis', {
+      method: 'POST',
+      body: JSON.stringify(analysisData),
+    });
+  }
+
+  async getLatestCompetitionAnalysis() {
+    console.log('Making API call to:', `${this.baseURL}/competition-analysis/previous`);
+    console.log('Auth token:', this.token ? 'Present' : 'Missing');
+    
+    return this.makeRequest('/competition-analysis/previous', {
+      method: 'GET',
+    });
+  }
+
+  async getAllCompetitionAnalyses() {
+    console.log('Making API call to:', `${this.baseURL}/competition-analysis/all`);
+    console.log('Auth token:', this.token ? 'Present' : 'Missing');
+    
+    return this.makeRequest('/competition-analysis/all', {
+      method: 'GET',
+    });
+  }
+
+  async getCompetitionAnalysis(analysisId) {
+    console.log('Making API call to:', `${this.baseURL}/competition-analysis/${analysisId}`);
+    console.log('Auth token:', this.token ? 'Present' : 'Missing');
+    
+    return this.makeRequest(`/competition-analysis/${analysisId}`, {
+      method: 'GET',
+    });
   }
 }
 
