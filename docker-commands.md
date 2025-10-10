@@ -8,10 +8,10 @@
 docker build -t llmredi-frontend .
 
 # Run the container
-docker run -p 3000:80 --name llmredi-frontend llmredi-frontend
+docker run -p 3001:3001 --name llmredi-frontend llmredi-frontend
 
 # Run in detached mode (background)
-docker run -d -p 3000:80 --name llmredi-frontend llmredi-frontend
+docker run -d -p 3001:3001 --name llmredi-frontend llmredi-frontend
 
 # Stop and remove the container
 docker stop llmredi-frontend
@@ -39,7 +39,7 @@ docker rm llmredi-frontend
 
 3. Run with environment variables:
    ```bash
-   docker run -p 3000:80 --env-file .env --name llmredi-frontend llmredi-frontend
+   docker run -p 3001:3001 --env-file .env --name llmredi-frontend llmredi-frontend
    ```
 
 ## Useful Commands
@@ -85,9 +85,9 @@ docker exec -it llmredi-frontend nginx -t
 
 ## Accessing the Application
 
-- **Local URL**: http://localhost:3000 (redirects to login)
-- **Login Page**: http://localhost:3000/login
-- **Health Check**: http://localhost:3000/health
+- **Local URL**: http://localhost:3001 (redirects to login)
+- **Login Page**: http://localhost:3001/login
+- **Health Check**: http://localhost:3001/health
 
 ## Troubleshooting
 
@@ -96,7 +96,7 @@ docker exec -it llmredi-frontend nginx -t
 1. **Port already in use**:
    ```bash
    # Use a different port
-   docker run -p 3001:80 --name llmredi-frontend llmredi-frontend
+   docker run -p 3002:3001 --name llmredi-frontend llmredi-frontend
    ```
 
 2. **Build fails**:
