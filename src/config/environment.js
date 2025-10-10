@@ -2,7 +2,7 @@
 export const config = {
   // API Configuration
   // Production API Base URL
-  API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://parthgoai.pythonanywhere.com',
+  API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://transform-api.llmredi.ai',
   
   // Local Development API Base URL (uncomment for local development)
   // API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5002',
