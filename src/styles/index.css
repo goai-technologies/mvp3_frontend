@@ -2976,7 +2976,7 @@ a:focus {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
     transition: opacity 0.3s ease, transform 0.2s ease;
-    background: #f8f9fa;
+    background: var(--card-bg);
     border: 1px solid var(--border-color);
     object-fit: cover;
 }
@@ -3834,7 +3834,7 @@ a:focus {
 
 .category-comparisons h2 {
     margin-bottom: 1.5rem;
-    color: var(--dark-text);
+    color: var(--primary-text);
     font-size: 1.75rem;
 }
 
@@ -4382,7 +4382,7 @@ a:focus {
 
 .report-modal-content {
     padding: 2rem;
-    background: #f8f9fa;
+    background: var(--card-bg);
 }
 
 /* Overall Score Section */
@@ -4957,7 +4957,7 @@ a:focus {
 .category-comparisons h2 {
     margin: 0 0 1rem 0;
     font-size: 1.5rem;
-    color: var(--dark-text);
+    color: var(--primary-text);
     font-weight: 700;
 }
 
@@ -4966,13 +4966,13 @@ a:focus {
     border-radius: var(--border-radius);
     padding: 0.625rem;
     margin-bottom: 1rem;
-    background: #f8f9fa;
+    background: var(--card-bg);
     transition: var(--transition);
 }
 
 .category-comparison-card:hover {
     box-shadow: var(--shadow-light);
-    border-color: var(--primary-blue);
+    border-color: var(--primary-purple);
 }
 
 .category-comparison-card:last-child {
@@ -8606,7 +8606,7 @@ a:focus {
   inset: -2px;
   border-radius: 50%;
   padding: 2px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  background: linear-gradient(135deg, rgba(115, 103, 240, 0.4), rgba(91, 229, 132, 0.2));
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: xor;
 }
@@ -8628,9 +8628,10 @@ a:focus {
   justify-content: space-between;
   margin-bottom: 1rem;
   padding: 1rem;
-  background: linear-gradient(135deg, var(--light-bg) 0%, rgba(250, 250, 250, 0.8) 100%);
+  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(26, 27, 31, 0.85) 100%);
   border-radius: var(--border-radius-large);
-  border: 1px solid rgba(229, 231, 235, 0.5);
+  border: 1px solid rgba(115, 103, 240, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .analysis-stats .stat {
@@ -8638,7 +8639,7 @@ a:focus {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--dark-text);
+  color: var(--secondary-text);
   font-weight: 500;
   padding: 0.25rem 0.5rem;
   border-radius: var(--border-radius);
@@ -8646,7 +8647,7 @@ a:focus {
 }
 
 .analysis-stats .stat:hover {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(115, 103, 240, 0.12);
   transform: translateY(-1px);
 }
 

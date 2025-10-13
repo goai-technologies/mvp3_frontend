@@ -726,7 +726,6 @@ const LLMReadinessAnalyzer = () => {
                         <p className="agent-preview-message">{agent.message}</p>
                         <p className="agent-description">This agent specializes in analyzing specific parameters to ensure comprehensive evaluation.</p>
                       </div>
-                      <div className="agent-step-number">Agent {index + 1}</div>
                     </div>
                     
                     <div className="agent-tests-preview">

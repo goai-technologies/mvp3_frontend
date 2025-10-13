@@ -256,7 +256,8 @@ const BrandAnalysisScreen = () => {
         const response = await apiService.analyzeBrandLLM(payload);
 
         // Transform updated API response shape into UI shape
-        const answers = response?.analysis?.answers || [];
+        // Support both older { analysis: { answers, summary } } and new { summary, details } formats
+        const answers = response?.analysis?.answers || response?.details || [];
         const summary = response?.analysis?.summary || response?.summary || {};
 
         const transformed = {

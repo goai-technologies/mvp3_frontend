@@ -3,10 +3,8 @@ import { config } from '../config/environment.js';
 
 class ApiService {
   constructor() {
-    // Use relative path in development to leverage proxy, full URL in production
-    this.baseURL = process.env.NODE_ENV === 'production' 
-      ? `${config.API_BASE_URL}/api`
-      : '/api';
+    // Always use explicit base URL to backend (localhost:5002 by default)
+    this.baseURL = `${config.API_BASE_URL}/api`;
     this.token = localStorage.getItem('llmredi_token') || null;
   }
 
@@ -215,10 +213,6 @@ class ApiService {
   // Get Previous Brand Analyses
   async getPreviousBrandAnalyses() {
     console.log('Making API call to:', `${this.baseURL}/brand-llm-analysis/all`);
-    console.log('Full URL will be:', process.env.NODE_ENV === 'production' 
-      ? `${this.baseURL}/brand-llm-analysis/all`
-      : 'Proxied to: http://localhost:5002/api/brand-llm-analysis/all'
-    );
     console.log('Auth token in API service:', this.token ? 'Present' : 'Missing');
     console.log('Token value in API service:', this.token);
     

@@ -324,7 +324,7 @@ const CompetitionAnalysisScreen = () => {
               <span className="analysis-date">{formatDate(latestAnalysis.timestamp)}</span>
             </div>
 
-            {/* Main Brand Summary */}
+            {/* Main Brand Summary (restored) */}
             <div className="brand-summary-card">
               <div className="brand-info">
                 <h3>{latestAnalysis.brand}</h3>
@@ -358,7 +358,7 @@ const CompetitionAnalysisScreen = () => {
               </div>
             </div>
 
-            {/* Competition Comparison Table */}
+            {/* Competition Comparison */}
             <div className="competition-table-section">
               <h3>Competition Comparison</h3>
               <div className="competition-table-wrapper">
@@ -414,7 +414,10 @@ const CompetitionAnalysisScreen = () => {
                     </tr>
                     
                     {/* Competitor Rows */}
-                    {latestAnalysis.competitor_analyses.map((competitor, index) => (
+                    {([...(latestAnalysis.competitor_analyses || [])]
+                      .sort((a, b) => (
+                        (b?.analysis?.summary?.accuracy_percent ?? 0) - (a?.analysis?.summary?.accuracy_percent ?? 0)
+                      ))).map((competitor, index) => (
                       <tr key={index}>
                         <td>
                           <div className="brand-cell-content">
@@ -467,6 +470,235 @@ const CompetitionAnalysisScreen = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+            {/* Competitors Analyzed */}
+            <div className="competitors-list-section">
+              <h3>Competitors Analyzed</h3>
+              {Array.isArray(latestAnalysis.competitors) && latestAnalysis.competitors.length > 0 ? (
+                <div className="competitors-grid">
+                  {latestAnalysis.competitors.map((competitor, ci) => (
+                    <div key={ci} className="competitor-card">
+                      <div className="competitor-info">
+                        <h4>{competitor.brand}</h4>
+                        <span className="domain">{competitor.domain}</span>
+                      </div>
+                      <div className="competitor-status">
+                        <FontAwesomeIcon icon="check-circle" className="status-icon" />
+                        <span>Analyzed</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <FontAwesomeIcon icon="users" className="empty-icon" />
+                  <p>No competitors data available</p>
+                </div>
+              )}
+            </div>
+
+            {/* Analysis Details */}
+            <div className="analysis-metadata-section">
+              <h3>Analysis Details</h3>
+              <div className="metadata-grid">
+                <div className="metadata-card">
+                  <h4>Analysis Information</h4>
+                  <div className="metadata-items">
+                    <div className="metadata-item">
+                      <span className="label">Analysis ID:</span>
+                      <span className="value">{latestAnalysis.analysis_id}</span>
+                    </div>
+                    <div className="metadata-item">
+                      <span className="label">Timestamp:</span>
+                      <span className="value">{formatDate(latestAnalysis.timestamp)}</span>
+                    </div>
+                    <div className="metadata-item">
+                      <span className="label">Total Questions:</span>
+                      <span className="value">{latestAnalysis.analysis.summary.total_questions}</span>
+                    </div>
+                    <div className="metadata-item">
+                      <span className="label">Correct Answers:</span>
+                      <span className="value success">{latestAnalysis.analysis.summary.correct}</span>
+                    </div>
+                    <div className="metadata-item">
+                      <span className="label">Partially Correct:</span>
+                      <span className="value warning">{latestAnalysis.analysis.summary.partially_correct}</span>
+                    </div>
+                    <div className="metadata-item">
+                      <span className="label">Incorrect Answers:</span>
+                      <span className="value error">{latestAnalysis.analysis.summary.incorrect}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="metadata-card">
+                  <h4>Competition Overview</h4>
+                  <div className="metadata-items">
+                    <div className="metadata-item">
+                      <span className="label">Competitors Analyzed:</span>
+                      <span className="value">{latestAnalysis.competitor_analyses?.length || 0}</span>
+                    </div>
+                    <div className="metadata-item">
+                      <span className="label">Main Brand:</span>
+                      <span className="value">{latestAnalysis.brand}</span>
+                    </div>
+                    <div className="metadata-item">
+                      <span className="label">Domain:</span>
+                      <span className="value">{latestAnalysis.domain}</span>
+                    </div>
+                    <div className="metadata-item">
+                      <span className="label">Overall Accuracy:</span>
+                      <span className={`value ${getAccuracyColor(latestAnalysis.analysis.summary.accuracy_percent)}`}>
+                        {latestAnalysis.analysis.summary.accuracy_percent}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Performance by Category */}
+            <div className="category-performance-section">
+              <h3>Performance by Category</h3>
+              {(() => {
+                const categories = {};
+                latestAnalysis.analysis.answers.forEach(answer => {
+                  if (answer.category) {
+                    if (!categories[answer.category]) {
+                      categories[answer.category] = { total: 0, correct: 0, partial: 0, incorrect: 0 };
+                    }
+                    categories[answer.category].total++;
+                    if (answer.evaluation === 'Correct') categories[answer.category].correct++;
+                    else if (answer.evaluation === 'Partially Correct') categories[answer.category].partial++;
+                    else categories[answer.category].incorrect++;
+                  }
+                });
+                
+                const categoryEntries = Object.entries(categories);
+                
+                return categoryEntries.length > 0 ? (
+                  <div className="category-breakdown">
+                    {categoryEntries.map(([category, stats]) => {
+                      const accuracy = Math.round((stats.correct / stats.total) * 100);
+                      return (
+                        <div key={category} className="category-card">
+                          <div className="category-header">
+                            <h4>{category}</h4>
+                            <div className={`category-score ${getAccuracyColor(accuracy)}`}>
+                              {accuracy}%
+                            </div>
+                          </div>
+                          <div className="category-stats">
+                            <div className="stat-item">
+                              <span className="stat-label">Total:</span>
+                              <span className="stat-value">{stats.total}</span>
+                            </div>
+                            <div className="stat-item success">
+                              <span className="stat-label">Correct:</span>
+                              <span className="stat-value">{stats.correct}</span>
+                            </div>
+                            <div className="stat-item warning">
+                              <span className="stat-label">Partial:</span>
+                              <span className="stat-value">{stats.partial}</span>
+                            </div>
+                            <div className="stat-item error">
+                              <span className="stat-label">Incorrect:</span>
+                              <span className="stat-value">{stats.incorrect}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="empty-state">
+                    <FontAwesomeIcon icon="chart-bar" className="empty-icon" />
+                    <p>No category data available</p>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Distributions: Answer Status & Confidence */}
+            <div className="distributions-two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <div className="answer-status-section">
+                  <h3>Answer Status Distribution</h3>
+                  {(() => {
+                    const statuses = {};
+                    latestAnalysis.analysis.answers.forEach(answer => {
+                      if (answer.answer_status) {
+                        statuses[answer.answer_status] = (statuses[answer.answer_status] || 0) + 1;
+                      }
+                    });
+                    
+                    const statusEntries = Object.entries(statuses);
+                    
+                    return statusEntries.length > 0 ? (
+                      <div className="status-breakdown">
+                        {statusEntries.map(([status, count]) => (
+                          <div key={status} className="status-card">
+                            <div className="status-header">
+                              <span className="status-name">{status.replace('_', ' ')}</span>
+                              <span className="status-count">{count}</span>
+                            </div>
+                            <div className="status-bar">
+                              <div 
+                                className="status-fill" 
+                                style={{ width: `${(count / latestAnalysis.analysis.answers.length) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="empty-state">
+                        <FontAwesomeIcon icon="chart-pie" className="empty-icon" />
+                        <p>No status data available</p>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+              <div>
+                <div className="confidence-section">
+                  <h3>Confidence Distribution</h3>
+                  {(() => {
+                    const confidences = {};
+                    latestAnalysis.analysis.answers.forEach(answer => {
+                      if (answer.confidence_label) {
+                        confidences[answer.confidence_label] = (confidences[answer.confidence_label] || 0) + 1;
+                      }
+                    });
+                    
+                    const confidenceEntries = Object.entries(confidences);
+                    
+                    return confidenceEntries.length > 0 ? (
+                      <div className="confidence-breakdown">
+                        {confidenceEntries.map(([confidence, count]) => (
+                          <div key={confidence} className="confidence-card">
+                            <div className="confidence-header">
+                              <span className="confidence-name">{confidence}</span>
+                              <span className="confidence-count">{count}</span>
+                            </div>
+                            <div className="confidence-bar">
+                              <div 
+                                className="confidence-fill" 
+                                style={{ width: `${(count / latestAnalysis.analysis.answers.length) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="empty-state">
+                        <FontAwesomeIcon icon="chart-line" className="empty-icon" />
+                        <p>No confidence data available</p>
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
 
@@ -605,7 +837,11 @@ const CompetitionAnalysisScreen = () => {
                       </div>
                       
               {/* Competitors Full Q&A */}
-              {latestAnalysis.competitor_analyses.map((competitor, cIdx) => (
+              {[...(latestAnalysis.competitor_analyses || [])]
+                .sort((a, b) => (
+                  (b?.analysis?.summary?.accuracy_percent ?? 0) - (a?.analysis?.summary?.accuracy_percent ?? 0)
+                ))
+                .map((competitor, cIdx) => (
                 <div key={`comp-block-${cIdx}`} className="brand-detailed-section">
                   <div className="section-header compact">
                     <h4>
