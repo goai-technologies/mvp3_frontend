@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { config } from '../config/environment.js';
+import apiService from '../services/api';
 
 // Check for existing authentication on app load
 const getInitialAuthState = () => {
@@ -248,26 +249,17 @@ export function AppProvider({ children }) {
       
       if (savedUser && savedToken) {
         try {
-          // Validate token with API using the config from environment
-          const response = await fetch(`${config.API_BASE_URL}/api/me`, {
-            headers: {
-              'Authorization': `Bearer ${savedToken}`,
-              'Content-Type': 'application/json'
-            }
-          });
+          // Set the token in the API service
+          apiService.setToken(savedToken);
           
-          if (response.ok) {
-            // Token is valid, user is authenticated
-            const userData = JSON.parse(savedUser);
-            dispatch({
-              type: ACTIONS.LOGIN,
-              payload: userData
-            });
-          } else {
-            // Token is invalid, clear storage
-            localStorage.removeItem('llmredi_user');
-            localStorage.removeItem('llmredi_token');
-          }
+          // Validate token with API using the centralized service
+          const userData = await apiService.getCurrentUser();
+          
+          // Token is valid, user is authenticated
+          dispatch({
+            type: ACTIONS.LOGIN,
+            payload: userData
+          });
         } catch (error) {
           console.error('Error validating token:', error);
           // Clear storage on error

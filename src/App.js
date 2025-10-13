@@ -8,7 +8,9 @@ import {
   faEnvelope, faComments, faBook, faTimes, faInfoCircle,
   faFilePdf, faFileExcel, faCode, faSpinner, faChevronDown, faChevronUp,
   faChartLine, faShieldAlt, faUniversalAccess, faArrowRight, faCheck,
-  faTimesCircle, faChartBar, faExternalLinkAlt, faGlobe
+  faTimesCircle, faChartBar, faExternalLinkAlt, faGlobe, faUserGraduate,
+  faCogs, faUserSecret, faBalanceScale, faClock, faUsers, faCalendar,
+  faArrowUp, faArrowDown, faEquals, faEye, faMinus, faStar
 } from '@fortawesome/free-solid-svg-icons';
 
 import { AppProvider } from './context/AppContext';
@@ -22,6 +24,9 @@ import ComparisonScreen from './components/ComparisonScreen';
 import InsightsScreen from './components/InsightsScreen';
 import ProfileScreen from './components/ProfileScreen';
 import HelpScreen from './components/HelpScreen';
+import LLMReadinessAnalyzer from './components/LLMReadinessAnalyzer';
+import BrandAnalysisScreen from './components/BrandAnalysisScreen';
+import CompetitionAnalysisScreen from './components/CompetitionAnalysisScreen';
 import NotificationContainer from './components/NotificationContainer';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -35,7 +40,9 @@ library.add(
   faEnvelope, faComments, faBook, faTimes, faInfoCircle,
   faFilePdf, faFileExcel, faCode, faSpinner, faChevronDown, faChevronUp,
   faChartLine, faShieldAlt, faUniversalAccess, faArrowRight, faCheck,
-  faTimesCircle, faChartBar, faExternalLinkAlt, faGlobe
+  faTimesCircle, faChartBar, faExternalLinkAlt, faGlobe, faUserGraduate,
+  faCogs, faUserSecret, faBalanceScale, faClock, faUsers, faCalendar,
+  faArrowUp, faArrowDown, faEquals, faEye, faMinus, faStar
 );
 
 // Add a 404 page component
@@ -115,6 +122,21 @@ function AppLayout() {
           <Route path="/help" element={
             <ProtectedRoute>
               <HelpScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/llm-analyzer" element={
+            <ProtectedRoute>
+              <LLMReadinessAnalyzer />
+            </ProtectedRoute>
+          } />
+          <Route path="/brand-analysis" element={
+            <ProtectedRoute>
+              <BrandAnalysisScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/competition-analysis" element={
+            <ProtectedRoute>
+              <CompetitionAnalysisScreen />
             </ProtectedRoute>
           } />
           {/* Catch-all route for 404 handling */}

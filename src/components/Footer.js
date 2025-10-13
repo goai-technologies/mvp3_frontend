@@ -69,6 +69,12 @@ const Footer = () => {
                   Insights
                 </button>
               </li>
+              <li>
+                <button onClick={() => handleNavigation('/llm-analyzer')} className="footer-link">
+                  <FontAwesomeIcon icon="robot" />
+                  LLM Analyzer
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -132,6 +138,9 @@ const Footer = () => {
           <div className="footer-bottom-content">
             <div className="copyright">
               <p>&copy; {currentYear} Automated Website Improvement Platform. All rights reserved.</p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.8, marginTop: '0.5rem' }}>
+                Powered by LLM Readiness Framework v2.
+              </p>
             </div>
             <div className="footer-status">
               {state.isLoggedIn && (

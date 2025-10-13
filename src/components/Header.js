@@ -57,6 +57,27 @@ const Header = () => {
             <span>Profile</span>
           </button>
           <button
+            onClick={() => handleNavigation('/llm-analyzer')}
+            className={`nav-link ${isActive('/llm-analyzer') ? 'active' : ''}`}
+          >
+            <FontAwesomeIcon icon="robot" />
+            <span>LLM Analyzer</span>
+          </button>
+          <button
+            onClick={() => handleNavigation('/brand-analysis')}
+            className={`nav-link ${isActive('/brand-analysis') ? 'active' : ''}`}
+          >
+            <FontAwesomeIcon icon="chart-bar" />
+            <span>Brand LLM Analysis</span>
+          </button>
+          <button
+            onClick={() => handleNavigation('/competition-analysis')}
+            className={`nav-link ${isActive('/competition-analysis') ? 'active' : ''}`}
+          >
+            <FontAwesomeIcon icon="balance-scale" />
+            <span>Competition Analysis</span>
+          </button>
+          <button
             onClick={() => handleNavigation('/help')}
             className={`nav-link ${isActive('/help') ? 'active' : ''}`}
           >

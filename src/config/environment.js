@@ -4,8 +4,8 @@ export const config = {
   // Production API Base URL
   API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://transform-api.llmredi.ai',
   
-  // Local Development API Base URL (uncomment for local development)
-  // API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5002',
+  // Production API Base URL (uncomment for production deployment)
+  // API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://parthgoai.pythonanywhere.com',
   
   // Debug mode for API logging
   DEBUG_MODE: process.env.REACT_APP_DEBUG_MODE === 'true' || false,
