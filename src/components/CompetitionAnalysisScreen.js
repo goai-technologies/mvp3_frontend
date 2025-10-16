@@ -9,6 +9,7 @@ const CompetitionAnalysisScreen = () => {
   const [analysisProgress, setAnalysisProgress] = useState(null);
   const [latestAnalysis, setLatestAnalysis] = useState(null);
   const [historicalAnalyses, setHistoricalAnalyses] = useState([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [formData, setFormData] = useState({
     domain: '',
     brand_name: ''
@@ -40,6 +41,7 @@ const CompetitionAnalysisScreen = () => {
   };
 
   const loadHistoricalAnalyses = async () => {
+    setIsLoadingHistory(true);
     try {
       const response = await apiService.getAllCompetitionAnalyses();
       const analyses = Array.isArray(response?.analyses) ? response.analyses : (Array.isArray(response) ? response : []);
@@ -58,6 +60,8 @@ const CompetitionAnalysisScreen = () => {
       setHistoricalAnalyses(normalized);
     } catch (error) {
       console.error('Error loading historical analyses:', error);
+    } finally {
+      setIsLoadingHistory(false);
     }
   };
 
@@ -1263,56 +1267,62 @@ const CompetitionAnalysisScreen = () => {
         )}
 
         {/* Historical Analyses Section */}
-        {historicalAnalyses.length > 0 && (
+        {(isLoadingHistory || historicalAnalyses.length > 0) && (
           <section className="analysis-section">
             <div className="section-header">
               <h2>Previous Analyses</h2>
             </div>
-            
-            <div className="historical-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Brand</th>
-                    <th>Competitors</th>
-                    <th>Performance</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {historicalAnalyses.slice(0, 10).map((analysis, index) => (
-                    <tr key={index}>
-                      <td>{formatDate(analysis.timestamp)}</td>
-                      <td>
-                        <div className="brand-cell">
-                          <strong>{analysis.brand}</strong>
-                          <span className="domain">{analysis.domain}</span>
-                        </div>
-                      </td>
-                      <td>{analysis.summary.competitor_count}</td>
-                      <td>
-                        <div className={`performance-badge ${getAccuracyColor(analysis.summary.accuracy_percent)}`}>
-                          {analysis.summary.accuracy_percent}%
-                        </div>
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn btn-sm btn-outline" onClick={() => handleViewAnalysis(analysis)}>
-                            <FontAwesomeIcon icon="eye" />
-                            View
-                          </button>
-                          <button className="btn btn-sm btn-outline" onClick={() => handleExportAnalysis(analysis)}>
-                            <FontAwesomeIcon icon="download" />
-                            Export
-                          </button>
-                        </div>
-                      </td>
+            {isLoadingHistory ? (
+              <div className="loading-state" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 0' }}>
+                <FontAwesomeIcon icon="spinner" spin />
+                <span>Loading previous analyses...</span>
+              </div>
+            ) : (
+              <div className="historical-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Brand</th>
+                      <th>Competitors</th>
+                      <th>Performance</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {historicalAnalyses.slice(0, 10).map((analysis, index) => (
+                      <tr key={index}>
+                        <td>{formatDate(analysis.timestamp)}</td>
+                        <td>
+                          <div className="brand-cell">
+                            <strong>{analysis.brand}</strong>
+                            <span className="domain">{analysis.domain}</span>
+                          </div>
+                        </td>
+                        <td>{analysis.summary.competitor_count}</td>
+                        <td>
+                          <div className={`performance-badge ${getAccuracyColor(analysis.summary.accuracy_percent)}`}>
+                            {analysis.summary.accuracy_percent}%
+                          </div>
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="btn btn-sm btn-outline" onClick={() => handleViewAnalysis(analysis)}>
+                              <FontAwesomeIcon icon="eye" />
+                              View
+                            </button>
+                            <button className="btn btn-sm btn-outline" onClick={() => handleExportAnalysis(analysis)}>
+                              <FontAwesomeIcon icon="download" />
+                              Export
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
         )}
       </div>
