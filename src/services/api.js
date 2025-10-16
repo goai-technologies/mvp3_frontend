@@ -43,13 +43,20 @@ class ApiService {
   // Make API request
   async makeRequest(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
-    const config = {
+    const { timeout, ...restOptions } = options;
+    const controller = new AbortController();
+    const timeoutMs = typeof timeout === 'number' ? timeout : config.DEFAULT_TIMEOUT;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    const fetchOptions = {
       headers: this.getHeaders(),
-      ...options,
+      signal: controller.signal,
+      ...restOptions,
     };
 
     try {
-      const response = await fetch(url, config);
+      const response = await fetch(url, fetchOptions);
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -58,8 +65,13 @@ class ApiService {
       
       return await response.json();
     } catch (error) {
+      if (error && (error.name === 'AbortError' || error.message === 'The user aborted a request.')) {
+        throw new Error('Request timed out');
+      }
       console.error('API Request Error:', error);
       throw error;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
@@ -125,9 +137,14 @@ class ApiService {
 
   async downloadJobData(jobId) {
     const url = `${this.baseURL}/jobs/${jobId}/download`;
+    const controller = new AbortController();
+    const timeoutMs = typeof timeout === 'number' ? timeout : config.DEFAULT_TIMEOUT;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     const response = await fetch(url, {
       headers: this.getHeaders(),
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`Download failed: ${response.status}`);
@@ -186,6 +203,7 @@ class ApiService {
     return this.makeRequest('/llm-analyze', {
       method: 'POST',
       body: JSON.stringify({ domain }),
+      timeout: 600000, // 10 minutes
     });
   }
 
@@ -207,6 +225,7 @@ class ApiService {
     return this.makeRequest('/brand-llm-analysis', {
       method: 'POST',
       body: JSON.stringify(brandData),
+      timeout: 600000, // 10 minutes
     });
   }
 
@@ -230,6 +249,7 @@ class ApiService {
     return this.makeRequest('/competition-analysis', {
       method: 'POST',
       body: JSON.stringify(analysisData),
+      timeout: 600000, // 10 minutes
     });
   }
 
@@ -257,6 +277,7 @@ class ApiService {
     
     return this.makeRequest(`/competition-analysis/${analysisId}`, {
       method: 'GET',
+      timeout: 600000, // 10 minutes
     });
   }
 }
